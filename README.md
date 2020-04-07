@@ -1,31 +1,70 @@
-# portainer-k8s
+# Portainer on Kubernetes BETA
 
-Experimental deployment of Portainer inside a Kubernetes cluster.
+This repository contains all the manifests you can use to deploy the Portainer for Kubernetes BETA version.
 
-Tested on:
+For any feedback regarding the BETA version, please head to the [portainer for Kubernetes BETA repository](https://github.com/portainer/kubernetes-beta).
+
+These manifests have been tested on:
 
 * Azure AKS
 * Digital Ocean
+* minikube
+* kind
 
-## Usage
+Have any feedback on the deployment of Portainer inside Kubernetes? Please head to the [deployment feedback topic](https://github.com/portainer/kubernetes-beta/issues/1).
+
+Supported platforms:
+
+* Linux amd64
+* Linux arm
+
+# Usage
+
+## Deploy Portainer inside your cluster and access it via an external load balancer
+
+If your cloud provider supports external load balancers, you can use the following commands to deploy Portainer:
 
 ```
-kubectl ... apply -f portainer.yaml
+curl -LO https://raw.githubusercontent.com/portainer/portainer-k8s/master/portainer.yaml
+kubectl apply -f portainer.yaml
 ```
 
-## Dev
+This will deploy the Portainer application and create an external load balancer which you'll be able to use to access Portainer on port 9000.
 
-This setup can be used to deploy Portainer inside a Kubernetes environment for development purposes.
+## Deploy Portainer inside your cluster and access it via node port
 
-### Requirements
+If you prefer to access Portainer via a specific port on a node of your cluster, use the following commands:
 
-- [minikube](https://minikube.sigs.k8s.io/)
+```
+curl -LO https://raw.githubusercontent.com/portainer/portainer-k8s/master/portainer-nodeport.yaml
+kubectl apply -f portainer-nodeport.yaml
+```
 
-### Usage
+This will expose Portainer on the port `30777` inside your cluster (`30776` for Edge tunnel server). You can change these ports inside the manifest if you wish.
 
-1. Start Portainer in development mode via `yarn start`
-2. Start minikube: `minikube start --mount --mount-string /path/to/dev/dist/directory:/portainer/app`
-3. Deploy or force an update of any existing Portainer app: `kubectl replace --force -f portainer-minikube.yaml`
-4. Retrieve minikube IP via: `minikube ip`
+## Deploy Portainer using Helm Chart
 
-Open browser at `<minikube_IP>:9000`
+Refer to the [README](https://github.com/portainer/portainer-k8s/blob/master/deploy/helm/README.md) under the `deploy/helm/portainer` directory for more details.
+
+## Manage a remote Kubernetes cluster
+
+In order to manage a remote Kubernetes cluster, you'll need a Portainer for Kubernetes BETA instance already deployed inside a Kubernetes cluster and connect it to a Portainer agent running inside the remote cluster.
+
+### Deploy the Portainer agent and access it via an external load balancer
+
+If your cloud provider supports external load balancers, you can use the following command to deploy the regular Portainer agent (not Edge):
+
+```
+curl -LO https://raw.githubusercontent.com/portainer/portainer-k8s/master/agent/portainer-agent.yaml
+kubectl apply -f agent/portainer-agent.yaml
+```
+
+This will deploy the Portainer agent and create an external load balancer which you'll be able to use to connect to the agent on port 9001.
+
+### Edge agent
+
+If you wish to deploy the Edge agent inside your Kubernetes cluster, it is recommended to follow the instructions available inside your Portainer instance.
+
+## ARM platform
+
+If you wish to deploy Portainer or the agent inside a Kubernetes cluster running on arm, please use the tag `linux-arm` instead of `linux-amd64`.
